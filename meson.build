@@ -1,4 +1,4 @@
-project('scrolloverview', 'cpp',
+project('scrollgrid', 'cpp',
   version: '0.1',
   default_options: ['buildtype=release'],
 )

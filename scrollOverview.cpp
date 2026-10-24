@@ -70,7 +70,7 @@
 #include "Window.hpp"
 
 static PHLWINDOW getOverviewFullscreenVisibilityWindow(const PHLWORKSPACE& workspace, const PHLWINDOW& fallback = {});
-static constexpr const char* OVERVIEW_SUBMAP = "scrolloverview";
+static constexpr const char* OVERVIEW_SUBMAP = "scrollgrid";
 static constexpr auto        POST_DROP_PSEUDO_FOCUS_DURATION = std::chrono::milliseconds(100);
 static CScrollOverview*             g_pointerGrabOverview = nullptr;
 static bool                         g_finishingAdoptedNativeDrag    = false;
@@ -226,8 +226,8 @@ static bool isTopLayerFocused(PHLMONITOR monitor) {
     return layerOwner && layerOwner->m_monitor == monitor && layerOwner->m_layer >= ZWLR_LAYER_SHELL_V1_LAYER_TOP;
 }
 
-static constexpr const char* OVERVIEW_INSERT_FADE_BEZIER = "scrolloverviewWorkspaceInsertFade";
-static constexpr const char* OVERVIEW_REMOVE_FADE_BEZIER = "scrolloverviewWorkspaceRemoveFade";
+static constexpr const char* OVERVIEW_INSERT_FADE_BEZIER = "scrollgridWorkspaceInsertFade";
+static constexpr const char* OVERVIEW_REMOVE_FADE_BEZIER = "scrollgridWorkspaceRemoveFade";
 
 static bool isPointerOnTopLayer(PHLMONITOR monitor) {
     if (!monitor)
@@ -1742,7 +1742,7 @@ void CScrollOverview::updateBackdropBlurCache(PHLMONITOR monitor, int wallpaperM
     const auto RENDERSIZE = monitor->m_transformedSize;
     const auto FBFORMAT   = g_pHyprRenderer->m_renderData.currentFB->m_drmFormat;
     if (!backdropBlurFB)
-        backdropBlurFB = g_pHyprRenderer->createFB("scrolloverview_backdrop_blur");
+        backdropBlurFB = g_pHyprRenderer->createFB("scrollgrid_backdrop_blur");
 
     if (!backdropBlurFB || !backdropBlurFB->isAllocated() || backdropBlurFB->m_size != FBSIZE || backdropBlurFB->m_drmFormat != FBFORMAT) {
         if (backdropBlurFB)

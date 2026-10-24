@@ -28,9 +28,9 @@
             }: let
                 hyprlandPackage = hyprland.packages.${system}.hyprland;
             in {
-                packages.scrolloverview = pkgs.hyprlandPlugins.mkHyprlandPlugin {
+                packages.scrollgrid = pkgs.hyprlandPlugins.mkHyprlandPlugin {
                     hyprland = hyprlandPackage;
-                    pluginName = "scrolloverview";
+                    pluginName = "scrollgrid";
                     version = self.shortRev or self.dirtyShortRev or "unknown";
                     src = ./.;
 
@@ -49,7 +49,7 @@
                     installPhase = ''
                         runHook preInstall
                         mkdir -p "$out/lib"
-                        mv scrolloverview.so "$out/lib/libscrolloverview.so"
+                        mv scrollgrid.so "$out/lib/libscrollgrid.so"
                         runHook postInstall
                     '';
 
@@ -61,12 +61,12 @@
                     };
                 };
 
-                packages.default = config.packages.scrolloverview;
+                packages.default = config.packages.scrollgrid;
 
                 devShells.default = pkgs.mkShell {
                     name = "hyprland-scroll-overview-dev";
 
-                    inputsFrom = [config.packages.scrolloverview];
+                    inputsFrom = [config.packages.scrollgrid];
 
                     nativeBuildInputs = with pkgs; [
                         meson

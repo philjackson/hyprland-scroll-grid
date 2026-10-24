@@ -412,7 +412,7 @@ static SDispatchResult onWindowDispatcher(std::string arg) {
 }
 
 static void failNotif(const std::string& reason) {
-    HyprlandAPI::addNotification(SCROLLOVERVIEW_HANDLE, "[scrolloverview] Failure in initialization: " + reason, CHyprColor{1.0, 0.2, 0.2, 1.0}, 5000);
+    HyprlandAPI::addNotification(SCROLLOVERVIEW_HANDLE, "[scrollgrid] Failure in initialization: " + reason, CHyprColor{1.0, 0.2, 0.2, 1.0}, 5000);
 }
 
 static void warnNativeDragUnavailable() {
@@ -422,7 +422,7 @@ static void warnNativeDragUnavailable() {
     g_scrollMoveMouseHookWarned = true;
     HyprlandAPI::addNotification(
         SCROLLOVERVIEW_HANDLE,
-        "[scrolloverview] native drag post-motion hook is unavailable; adoption will be retried on the next mouse event",
+        "[scrollgrid] native drag post-motion hook is unavailable; adoption will be retried on the next mouse event",
         CHyprColor{1.0, 0.75, 0.2, 1.0}, 7500);
 }
 
@@ -491,7 +491,7 @@ static void* findFnOrThrow(const std::string& name, std::initializer_list<std::s
     auto fns = HyprlandAPI::findFunctionsByName(SCROLLOVERVIEW_HANDLE, name);
     if (fns.empty()) {
         failNotif(std::format("no fns for hook {}", name));
-        throw std::runtime_error(std::format("[scrolloverview] No fns for hook {}", name));
+        throw std::runtime_error(std::format("[scrollgrid] No fns for hook {}", name));
     }
 
     if (demangledNeedles.size() == 0 || (demangledNeedles.size() == 1 && demangledNeedles.begin()->empty()))
@@ -510,19 +510,19 @@ static void* findFnOrThrow(const std::string& name, std::initializer_list<std::s
 
     if (matches.empty()) {
         failNotif(std::format("no matching overload for hook {}", name));
-        throw std::runtime_error(std::format("[scrolloverview] No matching overload for hook {}", name));
+        throw std::runtime_error(std::format("[scrollgrid] No matching overload for hook {}", name));
     }
 
     if (matches.size() > 1) {
         failNotif(std::format("ambiguous overload for hook {} ({} matches)", name, matches.size()));
-        throw std::runtime_error(std::format("[scrolloverview] Ambiguous overload for hook {}", name));
+        throw std::runtime_error(std::format("[scrollgrid] Ambiguous overload for hook {}", name));
     }
 
     return matches[0].address;
 }
 
 // shared core: register / unregister the overview trackpad gesture. used by both the hyprlang
-// keyword and the Lua `scrolloverview.gesture` function so both configure the same gesture system.
+// keyword and the Lua `scrollgrid.gesture` function so both configure the same gesture system.
 static std::expected<void, std::string> applyOverviewGesture(size_t fingerCount, eTrackpadGestureDirection direction, const std::string& action, uint32_t modMask,
                                                              float deltaScale, bool disableInhibit) {
     if (fingerCount <= 1 || fingerCount >= 10)
@@ -540,7 +540,7 @@ static std::expected<void, std::string> applyOverviewGesture(size_t fingerCount,
     return std::unexpected(std::format("Invalid gesture: {}", action));
 }
 
-// Lua-facing registrar (scrolloverview.gesture). takes the direction/mods as strings and resolves
+// Lua-facing registrar (scrollgrid.gesture). takes the direction/mods as strings and resolves
 // them the same way the keyword does, then defers to applyOverviewGesture.
 static SDispatchResult onRegisterOverviewGesture(size_t fingerCount, const std::string& directionStr, const std::string& action, const std::string& mods, float deltaScale,
                                                  bool disableInhibit) {
@@ -677,7 +677,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
         rc<void*>(hkChangeWorkspace));
     if (!g_pScrollChangeWorkspaceHook || !g_pScrollChangeWorkspaceHook->hook()) {
         failNotif("Failed enabling workspace change hook");
-        throw std::runtime_error("[scrolloverview] Failed enabling workspace change hook");
+        throw std::runtime_error("[scrollgrid] Failed enabling workspace change hook");
     }
 
     static auto P = Event::bus()->m_events.render.pre.listen([](PHLMONITOR monitor) {
@@ -705,7 +705,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     ScrollOverview::Config::registerGesture(::onRegisterOverviewGesture, ::overviewGestureKeyword);
     ScrollOverview::Config::registerConfig();
 
-    return {"scrolloverview", "A plugin for an overview", "Vaxry, yayuuu", SCROLLOVERVIEW_VERSION};
+    return {"scrollgrid", "A plugin for an overview", "Vaxry, yayuuu", SCROLLOVERVIEW_VERSION};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {
