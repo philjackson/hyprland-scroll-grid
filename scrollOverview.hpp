@@ -92,7 +92,7 @@ class CScrollOverview : public IOverview {
                              bool dragged = false);
     void   renderDraggedWindow(PHLMONITOR monitor, size_t activeIdx, float workspacePitch, float renderScale, const Time::steady_tp& now);
     void   renderPinnedFloatingWindows(PHLMONITOR monitor, float overviewScale, const Time::steady_tp& now);
-    void   moveViewportWorkspace(bool up);
+    void   moveViewportWorkspace(bool up, size_t step = 1);
     void   trackpadSwipeLayout(const PHLWORKSPACE target, const double delta);
     void   trackpadSwipeWorkspace(const double delta);
     void   finishWorkspaceScrollFollow();
@@ -107,8 +107,12 @@ class CScrollOverview : public IOverview {
     size_t dragWorkspaceIndex(PHLWINDOW window) const;
     void   updateWorkspaceOverflow();
     CBox   workspaceOverviewVisibleBox(size_t workspaceIdx, const CBox& workspaceBox, float renderScale, PHLMONITOR monitor) const;
-    float      workspaceOverviewOffset(size_t workspaceIdx, size_t activeIdx, float workspacePitch) const;
-    float      workspaceOverviewLogicalOffset(size_t workspaceIdx, size_t activeIdx, float workspacePitch) const;
+    Vector2D   workspaceOverviewOffset(size_t workspaceIdx, size_t activeIdx, float workspacePitch) const;
+    Vector2D   workspaceOverviewLogicalOffset(size_t workspaceIdx, size_t activeIdx, float workspacePitch) const;
+    size_t     gridColumns() const;
+    Vector2D   gridCellLogicalOffset(size_t workspaceIdx, float workspacePitch) const;
+    Vector2D   rebaseViewOffset(size_t fromIdx, size_t toIdx, float workspacePitch) const;
+    Vector2D   closedViewOffset(size_t workspaceIdx, float workspacePitch) const;
     float      workspaceOverviewAlpha(size_t workspaceIdx) const;
     PHLWINDOW windowAtOverviewPoint(const Vector2D& point, size_t* workspaceIdx = nullptr) const;
     PHLWINDOW windowAtOverviewCursor(size_t* workspaceIdx = nullptr);
@@ -197,9 +201,9 @@ class CScrollOverview : public IOverview {
         bool                             active              = false;
         WORKSPACEID                      transitionWorkspaceID = WORKSPACE_INVALID;
         bool                             transitionFadeIn   = true;
-        std::unordered_map<WORKSPACEID, float> oldRelativeOffsets;
-        std::unordered_map<WORKSPACEID, float> newRelativeOffsets;
-        float                            transitionOldRelativeOffset = 0.F;
+        std::unordered_map<WORKSPACEID, Vector2D> oldRelativeOffsets;
+        std::unordered_map<WORKSPACEID, Vector2D> newRelativeOffsets;
+        Vector2D                         transitionOldRelativeOffset = {};
     };
 
     Vector2D                         lastMousePosLocal = Vector2D{}; // monitor-local pixel space

@@ -22,6 +22,7 @@ enum class ELayout {
     VERTICAL,
     HORIZONTAL,
     AUTO,
+    GRID,
 };
 
 enum class EScrollAction {
@@ -101,6 +102,7 @@ int           getGestureDistance(PHLMONITOR monitor);
 float         getScale(PHLMONITOR monitor);
 int           getWorkspaceGap(PHLMONITOR monitor);
 ELayout       getLayout(PHLMONITOR monitor);
+int           getColumns(PHLMONITOR monitor);
 bool          getCrossMonitorDrag(PHLMONITOR monitor);
 int           getScrollEventDelay(PHLMONITOR monitor);
 bool          getLeftHanded(PHLMONITOR monitor);

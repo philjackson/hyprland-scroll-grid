@@ -17,6 +17,7 @@ struct SRenderParams {
     float                 renderScale          = 1.F;
     Time::steady_tp       now                  = {};
     const CBox*           workspaceBox         = nullptr;
+    const CBox*           clipBox              = nullptr; // clip window contents to this box (grid cells)
     bool                  selected             = false;
     bool                  dragged              = false;
     PHLWINDOW             pseudoFocusWindow;

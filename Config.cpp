@@ -405,7 +405,8 @@ static void defineConfigValues() {
     addValue(makeShared<CIntValue>("plugin:scrollgrid:gesture_distance", "gesture distance in pixels", 200, SIntValueOptions{.min = 1}));
     addValue(makeShared<CFloatValue>("plugin:scrollgrid:scale", "overview scale", 0.5F, SFloatValueOptions{.min = 0.1F, .max = 0.9F}));
     addValue(makeShared<CIntValue>("plugin:scrollgrid:workspace_gap", "gap between overview workspaces", 0, SIntValueOptions{.min = 0}));
-    addValue(makeShared<CStringValue>("plugin:scrollgrid:layout", "overview layout", Hyprlang::STRING{"vertical"}));
+    addValue(makeShared<CStringValue>("plugin:scrollgrid:layout", "overview layout", Hyprlang::STRING{"grid"}));
+    addValue(makeShared<CIntValue>("plugin:scrollgrid:columns", "grid layout columns, 0 picks a near-square grid", 0, SIntValueOptions{.min = 0}));
     addValue(makeShared<CBoolValue>("plugin:scrollgrid:cross_monitor_drag", "enable cross-monitor window dragging", false));
     addValue(makeShared<CIntValue>("plugin:scrollgrid:input:scroll_event_delay", "minimum delay (ms) between discrete scroll steps (wheel workspace nav and trackpad focus stepping)", 200, SIntValueOptions{.min = 0}));
     addValue(makeShared<CFloatValue>("plugin:scrollgrid:input:touchpad_scroll_factor", "overview touchpad scroll factor", 1.F,
@@ -457,8 +458,14 @@ ELayout getLayout(PHLMONITOR monitor) {
     const auto LAYOUT = getValue<std::string>("plugin:scrollgrid:layout", monitor);
     if (LAYOUT == "auto")
         return ELayout::AUTO;
+    if (LAYOUT == "grid")
+        return ELayout::GRID;
 
     return LAYOUT == "horizontal" ? ELayout::HORIZONTAL : ELayout::VERTICAL;
+}
+
+int getColumns(PHLMONITOR monitor) {
+    return std::max<int>(0, getValue<int>("plugin:scrollgrid:columns", monitor));
 }
 
 bool getCrossMonitorDrag(PHLMONITOR monitor) {

@@ -256,6 +256,22 @@ static void roundStandaloneWindowPassElements(const PHLWINDOW& window, PHLMONITO
     }
 }
 
+static void clipWindowPassElements(size_t firstElement, const CBox& clipBox) {
+    auto& passElements = g_pHyprRenderer->m_renderPass.m_passElements;
+    for (size_t i = firstElement; i < passElements.size(); ++i) {
+        const auto& passElement = passElements[i];
+        if (!passElement.element)
+            continue;
+
+        auto* surfacePassElement = dc<CSurfacePassElement*>(passElement.element.get());
+        if (!surfacePassElement)
+            continue;
+
+        auto& clip = surfacePassElement->m_data.clipBox;
+        clip       = clip.empty() ? clipBox : clip.intersection(clipBox);
+    }
+}
+
 static bool isOverviewHyprbarDecoration(IHyprWindowDecoration* decoration) {
     return decoration && decoration->getDecorationType() == DECORATION_CUSTOM && decoration->getDisplayName() == "Hyprbar";
 }
@@ -962,11 +978,18 @@ void renderOverviewWindow(const SRenderParams& params) {
     if (!params.window)
         return;
 
+    // an empty intersection would read as "no clip" to the renderer, so drop fully clipped windows here
+    if (params.clipBox && params.clipBox->intersection(params.windowBox).empty())
+        return;
+
     const SOverviewPseudoFocusState pseudoFocusState{params.window, params.pseudoFocusWindow};
     const bool                   fullscreen   = Fullscreen::controller()->isFullscreen(params.window);
     const SOverviewWindowMetrics metrics      = getOverviewWindowMetrics(params.monitor, params.window, params.renderScale);
+    // borders and shadows can't be clipped per element, so leave them off windows that spill out of the clip
+    const bool                   clipped      = params.clipBox && !overviewBoxContains(*params.clipBox, params.windowBox);
+    const bool                   frame        = !fullscreen && !clipped;
 
-    if (!fullscreen)
+    if (frame)
         renderOverviewWindowShadow(params.monitor, params.window, params.windowBox, metrics, params.selected);
 
     const auto underDecos =
@@ -1009,16 +1032,18 @@ void renderOverviewWindow(const SRenderParams& params) {
     if (!usePrecomputedBlur)
         blockOverviewWindowBlurOptimization(params.window, firstWindowPassElement);
     roundStandaloneWindowPassElements(params.window, params.monitor, params.renderScale, firstWindowPassElement);
+    if (params.clipBox)
+        clipWindowPassElements(firstWindowPassElement, *params.clipBox);
 
     renderOverviewCustomDecorations(params.monitor, params.window, params.workspaceBox ? *params.workspaceBox : CBox{}, params.windowBox, metrics, DECORATION_LAYER_OVER);
     renderOverviewCustomDecorations(params.monitor, params.window, params.workspaceBox ? *params.workspaceBox : CBox{}, params.windowBox, metrics, DECORATION_LAYER_OVERLAY);
 
-    if (!fullscreen)
+    if (frame)
         renderOverviewGroupTabIndicators(params.monitor, params.window, params.windowBox, metrics, metrics.targetOpacity);
-    if (!fullscreen)
+    if (frame)
         renderOverviewGroupTabTitles(params.monitor, params.window, params.windowBox, metrics, metrics.targetOpacity);
 
-    if (!fullscreen)
+    if (frame)
         renderOverviewWindowBorder(params.monitor, params.window, params.windowBox, metrics, params.selected);
 
     raiseWindowPopups(params.window, firstWindowPassElement);
