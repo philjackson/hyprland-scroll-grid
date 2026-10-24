@@ -39,6 +39,7 @@ static CFunctionHook* g_pScrollSendFrameEventsHook = nullptr;
 static CFunctionHook* g_pScrollSurfaceFrameHook    = nullptr;
 static CFunctionHook* g_pScrollMoveMouseHook       = nullptr;
 static CFunctionHook* g_pScrollChangeWorkspaceHook = nullptr;
+static bool           g_scrollChangeWorkspaceHookTried = false;
 typedef void (*origRenderWorkspace)(void*, PHLMONITOR, PHLWORKSPACE, const Time::steady_tp&, const CBox&);
 typedef void (*origAddDamageA)(void*, const CBox&);
 typedef void (*origAddDamageB)(void*, const pixman_region32_t*);
@@ -81,7 +82,22 @@ static Config::Actions::ActionResult hkChangeWorkspace(PHLWORKSPACE workspace) {
     return rc<origChangeWorkspace>(g_pScrollChangeWorkspaceHook->m_original)(workspace);
 }
 
+// Hooked on first open instead of at load, and never unhooked until exit (finishing the last overview
+// runs inside hkChangeWorkspace, which still needs its original). Hyprland can't stack two hooks on one
+// function, so when scrolloverview already holds it, carry on without: workspace dispatches then update
+// the open grid instead of closing it.
+static void ensureChangeWorkspaceHook() {
+    if (g_scrollChangeWorkspaceHookTried)
+        return;
+
+    g_scrollChangeWorkspaceHookTried = true;
+    if (g_pScrollChangeWorkspaceHook && !g_pScrollChangeWorkspaceHook->hook())
+        g_pScrollChangeWorkspaceHook = nullptr;
+}
+
 bool ensureScrollOverviewHooks() {
+    ensureChangeWorkspaceHook();
+
     if (g_scrollOverviewHooksActive)
         return true;
 
@@ -669,16 +685,11 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
         findFnOrThrow("_ZN7Monitor8CMonitor9addDamageERKN9Hyprutils4Math4CBoxE", {""}),
         rc<void*>(hkAddDamageA));
 
-    // Keep this hook until plugin unload: finishing the last overview disables the
-    // rendering hooks inside hkChangeWorkspace, which still needs its original function.
+    // installed lazily by ensureChangeWorkspaceHook so scrolloverview can load alongside
     g_pScrollChangeWorkspaceHook = HyprlandAPI::createFunctionHook(
         SCROLLOVERVIEW_HANDLE,
         findFnOrThrow("changeWorkspace", {"Config::Actions::changeWorkspace(Hyprutils::Memory::CSharedPointer<CWorkspace>"}),
         rc<void*>(hkChangeWorkspace));
-    if (!g_pScrollChangeWorkspaceHook || !g_pScrollChangeWorkspaceHook->hook()) {
-        failNotif("Failed enabling workspace change hook");
-        throw std::runtime_error("[scrollgrid] Failed enabling workspace change hook");
-    }
 
     static auto P = Event::bus()->m_events.render.pre.listen([](PHLMONITOR monitor) {
         if (const auto overview = scrollOverviewForMonitor(monitor))
