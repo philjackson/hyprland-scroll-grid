@@ -1,4 +1,4 @@
-This configuration creates a new workspace when you reach the last populated workspace on a monitor and scroll down again. The custom `mouse_down` bind is enabled only in that situation; at other times it remains disabled, allowing ScrollOverview's built-in scrolling action to run normally.
+This configuration creates a new workspace when you reach the last populated workspace on a monitor and scroll down again. The custom `mouse_down` bind is enabled only in that situation; at other times it remains disabled, allowing ScrollGrid's built-in scrolling action to run normally.
 
 The example also ignores special and empty workspaces. Moving to `emptynm` lets Hyprland select the next empty workspace on the monitor.
 
@@ -73,7 +73,7 @@ local function update_last_workspace_scroll_bind()
     end
 
     local enabled = false
-    if hl.get_current_submap() == "scrolloverview" then
+    if hl.get_current_submap() == "scrollgrid" then
         enabled = last_workspace_state()
     end
 
@@ -81,7 +81,7 @@ local function update_last_workspace_scroll_bind()
 end
 ```
 
-Add the following bind inside your existing `scrolloverview` submap. Do not define the same submap a second time; merge this with the configuration from [Keybind submap](Keybind-submap.md).
+Add the following bind inside your existing `scrollgrid` submap. Do not define the same submap a second time; merge this with the configuration from [Keybind submap](Keybind-submap.md).
 
 ```lua
 lastWorkspaceScrollBind = hl.bind("mouse_down", create_workspace_at_end)

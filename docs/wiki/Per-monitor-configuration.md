@@ -1,6 +1,6 @@
-`hl.plugin.scrolloverview.configure(options)` accepts a table of the ScrollOverview
+`hl.plugin.scrollgrid.configure(options)` accepts a table of the ScrollGrid
 properties listed in [Basic configuration](Basic-configuration.md). Without `output`, it is shorthand for
-`hl.config({ plugin = { scrolloverview = options } })` and keeps the same global
+`hl.config({ plugin = { scrollgrid = options } })` and keeps the same global
 configuration behavior. You can use either form for global settings.
 
 With `output`, it stores overrides for that monitor. This is useful when two
@@ -8,7 +8,7 @@ landscape monitors should use different overview layouts:
 
 ```lua
 -- Global settings inherited by all monitors.
-hl.plugin.scrolloverview.configure({
+hl.plugin.scrollgrid.configure({
     layout = "auto",
     scale = 0.5,
     workspace_gap = 100,
@@ -16,14 +16,14 @@ hl.plugin.scrolloverview.configure({
 })
 
 -- Only these fields differ on DP-1.
-hl.plugin.scrolloverview.configure({
+hl.plugin.scrollgrid.configure({
     output = "DP-1",
     layout = "vertical",
     input = { scrolling_mode = 2 },
 })
 
 -- HDMI-A-2 still inherits workspace_gap and shadow.range from global settings.
-hl.plugin.scrolloverview.configure({
+hl.plugin.scrollgrid.configure({
     output = "HDMI-A-2",
     layout = "horizontal",
     scale = 0.4,
@@ -40,7 +40,7 @@ end)
   wildcards, or monitor-description selectors. A monitor may be disconnected when
   its settings are configured; its overrides apply when it is connected.
 - Every overview property can be overridden, including individual `input` and
-  `shadow` fields. Hyprland options outside ScrollOverview remain global.
+  `shadow` fields. Hyprland options outside ScrollGrid remain global.
 - Missing fields inherit the current global value.
 - Repeated calls for the same output merge fields - the last supplied value for a
   field wins. An empty subtable leaves previous overrides unchanged.
@@ -58,4 +58,4 @@ end)
   landscape monitors.
 
 `output` is a selector for `configure()` only. Putting it inside
-`hl.config({ plugin = { scrolloverview = ... } })` does not create a monitor rule.
+`hl.config({ plugin = { scrollgrid = ... } })` does not create a monitor rule.

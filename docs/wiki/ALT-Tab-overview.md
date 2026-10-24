@@ -1,4 +1,4 @@
-ScrollOverview can act as a visual `ALT + Tab` switcher. Pressing `ALT + Tab` opens a compact horizontal overview and uses the plugin's `navigate("right")` dispatcher to advance to the next column. Navigation stays on the monitor where the overview was opened and skips windows that are both pinned and floating.
+ScrollGrid can act as a visual `ALT + Tab` switcher. Pressing `ALT + Tab` opens a compact horizontal overview and uses the plugin's `navigate("right")` dispatcher to advance to the next column. Navigation stays on the monitor where the overview was opened and skips windows that are both pinned and floating.
 
 The dispatcher does not wrap at the end. The module therefore compares the active workspace and window before and after moving right. If neither changes, the selection is already at the last column on that monitor, so it navigates left until it reaches the first workspace and its first column.
 
@@ -38,13 +38,13 @@ local function navigate_to_first_column()
         end
 
         previousState = currentState
-        hl.plugin.scrolloverview.navigate("left")
+        hl.plugin.scrollgrid.navigate("left")
     end
 end
 
 local function navigate_next_column()
     local previousState = selection_state()
-    hl.plugin.scrolloverview.navigate("right")
+    hl.plugin.scrollgrid.navigate("right")
 
     if selection_state() == previousState then
         navigate_to_first_column()
@@ -54,20 +54,20 @@ end
 function M.next()
     hl.config({
         plugin = {
-            scrolloverview = {
+            scrollgrid = {
                 layout = "horizontal",
                 scale = 0.3,
             },
         },
     })
-    hl.plugin.scrolloverview.overview("on")
+    hl.plugin.scrollgrid.overview("on")
     openedByAltTab = true
     navigate_next_column()
 end
 
 function M.close()
     if openedByAltTab then
-        hl.plugin.scrolloverview.overview("off")
+        hl.plugin.scrollgrid.overview("off")
         openedByAltTab = false
     end
 end

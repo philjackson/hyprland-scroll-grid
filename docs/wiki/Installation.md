@@ -3,13 +3,7 @@
 1. For stable releases of Hyprland, add the plugin repository:
 
    ```bash
-   hyprpm add https://github.com/yayuuu/hyprland-scroll-overview.git
-   ```
-
-   If you use a Git build of Hyprland, add the plugin from the `new-release` branch instead:
-
-   ```bash
-   hyprpm add https://github.com/yayuuu/hyprland-scroll-overview origin/new-release
+   hyprpm add https://github.com/philjackson/hyprland-scroll-grid.git
    ```
 
 2. Build and fetch dependencies:
@@ -21,7 +15,7 @@
 3. Enable the plugin:
 
    ```bash
-   hyprpm enable scrolloverview
+   hyprpm enable scrollgrid
    ```
 
 4. To load enabled plugins automatically when Hyprland starts, run `hyprpm reload` from the `hyprland.start` event handler in your Lua configuration:
@@ -39,8 +33,8 @@
 1. Clone the repository and enter its directory:
 
    ```bash
-   git clone https://github.com/yayuuu/hyprland-scroll-overview.git
-   cd hyprland-scroll-overview
+   git clone https://github.com/philjackson/hyprland-scroll-grid.git
+   cd hyprland-scroll-grid
    ```
 
 2. Build the plugin:
@@ -52,12 +46,12 @@
 3. Load the plugin into the running Hyprland instance:
 
    ```bash
-   hyprctl plugin load "$(pwd)/scrolloverview.so"
+   hyprctl plugin load "$(pwd)/scrollgrid.so"
    ```
 
 4. To load the plugin automatically when Hyprland starts, add it to your Lua configuration using an absolute path:
 
    ```lua
-   local pluginPath = "/absolute/path/to/hyprland-scroll-overview/scrolloverview.so"
+   local pluginPath = "/absolute/path/to/hyprland-scroll-grid/scrollgrid.so"
    hl.plugin.load(pluginPath)
    ```

@@ -11,7 +11,7 @@ local shiftPressed = {
 local function set_scrolling_mode(mode)
     hl.config({
         plugin = {
-            scrolloverview = {
+            scrollgrid = {
                 input = {
                     scrolling_mode = mode,
                 },
@@ -34,7 +34,7 @@ end
 reset_scrolling_mode()
 ```
 
-Add these bindings inside your existing `scrolloverview` submap. Both left and right Shift are tracked so the mode is restored only after every held Shift key has been released. The release binds are universal, allowing them to run even if the overview closes before Shift is released.
+Add these bindings inside your existing `scrollgrid` submap. Both left and right Shift are tracked so the mode is restored only after every held Shift key has been released. The release binds are universal, allowing them to run even if the overview closes before Shift is released.
 
 ```lua
 hl.bind("Shift_L", function()
@@ -64,6 +64,6 @@ end, {
 })
 ```
 
-Do not define the `scrolloverview` submap again. Merge these bindings into the callback shown on [Keybind submap](Keybind-submap.md).
+Do not define the `scrollgrid` submap again. Merge these bindings into the callback shown on [Keybind submap](Keybind-submap.md).
 
 [Back to Advanced configuration](Advanced-configuration.md)

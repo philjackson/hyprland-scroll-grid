@@ -1,6 +1,6 @@
-Dispatchers are runtime actions exposed by ScrollOverview for controlling the plugin. They let you open, close, or toggle the overview on one or more monitors, move the current selection between windows and workspaces, and select or close windows from inside the overview.
+Dispatchers are runtime actions exposed by ScrollGrid for controlling the plugin. They let you open, close, or toggle the overview on one or more monitors, move the current selection between windows and workspaces, and select or close windows from inside the overview.
 
-You can call dispatchers directly from your Lua configuration using `hl.plugin.scrolloverview.<dispatcher>(...)`. This makes them suitable for keybinds, submaps, event handlers, and custom Lua functions. The same actions can also be invoked externally over Hyprland IPC with `hyprctl dispatch`, which is useful for shell scripts, status bars, launchers, and other automation.
+You can call dispatchers directly from your Lua configuration using `hl.plugin.scrollgrid.<dispatcher>(...)`. This makes them suitable for keybinds, submaps, event handlers, and custom Lua functions. The same actions can also be invoked externally over Hyprland IPC with `hyprctl dispatch`, which is useful for shell scripts, status bars, launchers, and other automation.
 
 ## Usage examples
 
@@ -11,7 +11,7 @@ Bind `SUPER + g` to toggle the overview on all monitors:
 ```lua
 -- hyprland.lua
 hl.bind("SUPER + g", function()
-    hl.plugin.scrolloverview.overview("toggle all")
+    hl.plugin.scrollgrid.overview("toggle all")
 end)
 ```
 
@@ -24,14 +24,14 @@ For navigation and window-action binds used while the overview is open, see [Key
 Pass the corresponding Lua dispatcher expression to `hyprctl dispatch`:
 
 ```bash
-hyprctl dispatch 'hl.plugin.scrolloverview.overview("toggle")'
-hyprctl dispatch 'hl.plugin.scrolloverview.navigate("left")'
-hyprctl dispatch 'hl.plugin.scrolloverview.window("close")'
+hyprctl dispatch 'hl.plugin.scrollgrid.overview("toggle")'
+hyprctl dispatch 'hl.plugin.scrollgrid.navigate("left")'
+hyprctl dispatch 'hl.plugin.scrollgrid.window("close")'
 ```
 
 ## Available dispatchers
 
-### `hl.plugin.scrolloverview.overview`
+### `hl.plugin.scrollgrid.overview`
 
 Controls the overview state.
 
@@ -46,7 +46,7 @@ Controls the overview state.
 
 For example, `toggle DP-1` targets only `DP-1`, while `toggle all` opens all missing overviews or closes them when they are all already open. A bare `toggle` still targets only the active monitor, and a bare `close` closes all open overviews.
 
-### `hl.plugin.scrolloverview.navigate`
+### `hl.plugin.scrollgrid.navigate`
 
 Moves the overview selection/focus between windows in the current workspace. If there are no more windows in that direction, it selects the next workspace when the direction matches the configured overview layout.
 
@@ -57,7 +57,7 @@ Moves the overview selection/focus between windows in the current workspace. If 
 | `up` | move selection up |
 | `down` | move selection down |
 
-### `hl.plugin.scrolloverview.window`
+### `hl.plugin.scrollgrid.window`
 
 Acts on the window under the mouse cursor.
 

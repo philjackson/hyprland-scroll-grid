@@ -6,11 +6,12 @@ The configuration below is a good starting point for most users. It provides a b
 -- .config/hypr/hyprland.lua
 hl.config({
     plugin = {
-        scrolloverview = {
+        scrollgrid = {
             gesture_distance = 300, -- how far is the "max" for the gesture
             scale = 0.5, -- preferred overview scale
             workspace_gap = 100,
-            layout = "vertical", -- vertical, horizontal, or auto (per-monitor orientation)
+            layout = "grid", -- grid, vertical, horizontal, or auto (per-monitor orientation)
+            columns = 0, -- grid columns; 0 picks a near-square grid
             wallpaper = 2, -- 0: global only, 1: per-workspace only, 2: both
             blur = true, -- blur only the main overview wallpaper
 
@@ -22,9 +23,9 @@ hl.config({
     },
 })
 
--- Toggle ScrollOverview with SUPER+g
+-- Toggle ScrollGrid with SUPER+g
 hl.bind("SUPER + g", function()
-    hl.plugin.scrolloverview.overview("toggle all")
+    hl.plugin.scrollgrid.overview("toggle all")
 end)
 ```
 
@@ -35,7 +36,8 @@ end)
 | gesture_distance | number | how far is the max for the gesture | `200` |
 | scale | float | overview scale, [0.1–0.9] | `0.5` |
 | workspace_gap | number | gap between visible workspaces in the overview, in pixels | `0` |
-| layout | string | overview layout: `vertical`, `horizontal`, or `auto`; auto uses horizontal on portrait monitors and vertical on landscape monitors | `vertical` |
+| layout | string | overview layout: `grid`, `vertical`, `horizontal`, or `auto`; auto uses horizontal on portrait monitors and vertical on landscape monitors | `grid` |
+| columns | int | number of grid columns; `0` picks a near-square grid for the current workspace count | `0` |
 | cross_monitor_drag | bool | enable cross-monitor overview dragging and Hyprland move-drag adoption; does not affect `open all`, `toggle all`, or manually opened overviews | `false` |
 | wallpaper | int | wallpaper mode: `0` global only, `1` per-workspace only, `2` both | `0` |
 | blur | bool | blur the main overview wallpaper without blurring workspace wallpapers | `false` |
@@ -44,7 +46,7 @@ end)
 
 ### Subcategory `input`
 
-ScrollOverview respects Hyprland's global `input.left_handed` and `input.touchpad.scroll_factor` settings. The `left_handed` override and `touchpad_scroll_factor` multiplier below let you adjust their behavior inside the overview only, without changing the global input configuration.
+ScrollGrid respects Hyprland's global `input.left_handed` and `input.touchpad.scroll_factor` settings. The `left_handed` override and `touchpad_scroll_factor` multiplier below let you adjust their behavior inside the overview only, without changing the global input configuration.
 
 | property | type | description | default |
 | --- | --- | --- | --- |
@@ -70,14 +72,14 @@ Controls the shadow around each workspace card. `enabled` defaults to `false`; a
 
 The overview can be opened and closed with a trackpad swipe gesture.
 
-Call `hl.plugin.scrolloverview.gesture({ ... })` from your Lua configuration.
+Call `hl.plugin.scrollgrid.gesture({ ... })` from your Lua configuration.
 
 ```lua
 -- hyprland.lua
-hl.plugin.scrolloverview.gesture({ fingers = 3, direction = "vertical" })
-hl.plugin.scrolloverview.gesture({ fingers = 4, direction = "vertical", mod = "SUPER", scale = 1.5 })
-hl.plugin.scrolloverview.gesture({ fingers = 4, direction = "vertical", disable_inhibit = true })
-hl.plugin.scrolloverview.gesture({ fingers = 3, direction = "vertical", action = "unset" })
+hl.plugin.scrollgrid.gesture({ fingers = 3, direction = "vertical" })
+hl.plugin.scrollgrid.gesture({ fingers = 4, direction = "vertical", mod = "SUPER", scale = 1.5 })
+hl.plugin.scrollgrid.gesture({ fingers = 4, direction = "vertical", disable_inhibit = true })
+hl.plugin.scrollgrid.gesture({ fingers = 3, direction = "vertical", action = "unset" })
 ```
 
 | field | type | description | default |
