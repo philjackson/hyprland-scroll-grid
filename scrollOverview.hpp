@@ -23,6 +23,12 @@
 class CMonitor;
 struct wl_event_source;
 
+// maps a workspace's monitor-local coordinates into its grid cell: local * factor + shift
+struct SOverviewWorkspaceFit {
+    float    factor = 1.F;
+    Vector2D shift  = {};
+};
+
 class CScrollOverview : public IOverview {
   public:
     CScrollOverview(PHLWORKSPACE startedOn_, bool swipe = false, PHLMONITOR monitor = {});
@@ -89,7 +95,7 @@ class CScrollOverview : public IOverview {
     void   renderWorkspaceLive(PHLMONITOR monitor, size_t workspaceIdx, size_t activeIdx, float workspacePitch, float renderScale, int wallpaperMode, const Time::steady_tp& now);
     bool   hasVisiblePrecomputedBlurWindow(PHLMONITOR monitor, size_t activeIdx, float workspacePitch, float renderScale) const;
     void   renderWindowLive(PHLMONITOR monitor, PHLWINDOW window, const CBox& windowBox, float renderScale, const Time::steady_tp& now, const CBox* workspaceBox = nullptr,
-                             bool dragged = false);
+                             bool dragged = false, const CBox* clipBox = nullptr);
     void   renderDraggedWindow(PHLMONITOR monitor, size_t activeIdx, float workspacePitch, float renderScale, const Time::steady_tp& now);
     void   renderPinnedFloatingWindows(PHLMONITOR monitor, float overviewScale, const Time::steady_tp& now);
     void   moveViewportWorkspace(bool up, size_t step = 1);
@@ -110,10 +116,18 @@ class CScrollOverview : public IOverview {
     Vector2D   workspaceOverviewOffset(size_t workspaceIdx, size_t activeIdx, float workspacePitch) const;
     Vector2D   workspaceOverviewLogicalOffset(size_t workspaceIdx, size_t activeIdx, float workspacePitch) const;
     size_t     gridColumns() const;
+    float      targetScale() const;
     Vector2D   gridCellLogicalOffset(size_t workspaceIdx, float workspacePitch) const;
     Vector2D   rebaseViewOffset(size_t fromIdx, size_t toIdx, float workspacePitch) const;
     Vector2D   closedViewOffset(size_t workspaceIdx, float workspacePitch) const;
     float      workspaceOverviewAlpha(size_t workspaceIdx) const;
+    SOverviewWorkspaceFit workspaceFit(size_t workspaceIdx) const;
+    SOverviewWorkspaceFit workspaceFit(const PHLWORKSPACE& workspace) const;
+    CBox       overviewWindowBox(const PHLWINDOW& window, PHLMONITOR monitor, float scale, const Vector2D& viewOffset, const Vector2D& offset,
+                                 ScrollOverview::Config::ELayout layout, bool round = true) const;
+    CBox       overviewDragWindowBox(const PHLWINDOW& window, PHLMONITOR monitor, float scale, const Vector2D& viewOffset, const Vector2D& offset,
+                                     ScrollOverview::Config::ELayout layout, bool round = true) const;
+    Vector2D   overviewSizeToGlobal(const PHLWINDOW& window, const Vector2D& size) const;
     PHLWINDOW windowAtOverviewPoint(const Vector2D& point, size_t* workspaceIdx = nullptr) const;
     PHLWINDOW windowAtOverviewCursor(size_t* workspaceIdx = nullptr);
     PHLWINDOW windowAtOverviewCursorOnWorkspace(size_t workspaceIdx, const PHLWINDOW& ignoredWindow = nullptr, CBox* windowBox = nullptr) const;
