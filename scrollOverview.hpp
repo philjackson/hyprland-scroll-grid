@@ -87,8 +87,9 @@ class CScrollOverview : public IOverview {
     void   seedRememberedSelections();
     void   redrawAll(bool forcelowres = false);
     void   onWorkspaceChange();
-    void   renderGlobalWallpaper(PHLMONITOR monitor, const Time::steady_tp& now);
+    void   renderGlobalWallpaper(Render::CRenderContext& ctx, PHLMONITOR monitor, const Time::steady_tp& now);
     void   renderWallpaperLayers(PHLMONITOR monitor, const CBox& workspaceBox, float renderScale, const Time::steady_tp& now, float alpha = 1.F);
+    void   renderWidgetLayers(PHLMONITOR monitor, const CBox& workspaceBox, float renderScale, const Time::steady_tp& now, float alpha = 1.F);
     void   updateBackdropBlurCache(PHLMONITOR monitor, int wallpaperMode, const Time::steady_tp& now);
     void   renderBackdropBlurCache(PHLMONITOR monitor);
     void   renderWorkspaceBackground(PHLMONITOR monitor, size_t workspaceIdx, size_t activeIdx, float workspacePitch, float renderScale, int wallpaperMode, const Time::steady_tp& now);
@@ -124,7 +125,8 @@ class CScrollOverview : public IOverview {
     SOverviewWorkspaceFit workspaceFit(size_t workspaceIdx) const;
     SOverviewWorkspaceFit workspaceFit(const PHLWORKSPACE& workspace) const;
     CBox       overviewWindowBox(const PHLWINDOW& window, PHLMONITOR monitor, float scale, const Vector2D& viewOffset, const Vector2D& offset,
-                                 ScrollOverview::Config::ELayout layout, bool round = true) const;
+                                 ScrollOverview::Config::ELayout layout, bool round = true,
+                                 bool includeDecorations = true) const;
     CBox       overviewDragWindowBox(const PHLWINDOW& window, PHLMONITOR monitor, float scale, const Vector2D& viewOffset, const Vector2D& offset,
                                      ScrollOverview::Config::ELayout layout, bool round = true) const;
     Vector2D   overviewSizeToGlobal(const PHLWINDOW& window, const Vector2D& size) const;
@@ -199,6 +201,7 @@ class CScrollOverview : public IOverview {
     bool   overviewBlurStateValid   = false;
     float  lastOverviewBlurScale    = 1.F;
     int    lastBackdropWallpaperMode = -1;
+    std::vector<std::pair<const void*, uint32_t>> lastBackdropWallpaperStack;
     Vector2D lastOverviewBlurViewOffset = Vector2D{};
     SP<Render::IFramebuffer> backdropBlurFB;
 
@@ -213,10 +216,10 @@ class CScrollOverview : public IOverview {
 
     struct SWorkspaceInsertTransition {
         bool                             active              = false;
-        WORKSPACEID                      transitionWorkspaceID = WORKSPACE_INVALID;
+        std::string                            transitionWorkspaceKey = "";
         bool                             transitionFadeIn   = true;
-        std::unordered_map<WORKSPACEID, Vector2D> oldRelativeOffsets;
-        std::unordered_map<WORKSPACEID, Vector2D> newRelativeOffsets;
+        std::unordered_map<std::string, Vector2D> oldRelativeOffsets;
+        std::unordered_map<std::string, Vector2D> newRelativeOffsets;
         Vector2D                         transitionOldRelativeOffset = {};
     };
 
@@ -244,7 +247,7 @@ class CScrollOverview : public IOverview {
     CBox                             dragOriginalOverviewBox    = CBox{};
     CBox                             dragOriginalOverviewHitbox = CBox{};
     CBox                             resizeOriginalBox          = CBox{};
-    WORKSPACEID                      focusSyncedFromWorkspaceID = WORKSPACE_INVALID;
+    std::string                      focusSyncedFromWorkspaceKey       = "";
     size_t                           resizeWorkspaceIdx     = 0;
     Layout::eRectCorner              resizeCorner           = Layout::CORNER_NONE;
     bool                             dragPendingPrimary    = false;
@@ -274,7 +277,8 @@ class CScrollOverview : public IOverview {
 
     std::vector<SP<SWorkspaceImage>> images;
     std::vector<PHLWINDOWREF>        pinnedFloatingWindows;
-    std::unordered_map<WORKSPACEID, PHLWINDOWREF> rememberedSelection;
+    // Selectors distinguish numbered, named, and special workspace identities.
+    std::unordered_map<std::string, PHLWINDOWREF> rememberedSelection;
     SWorkspaceInsertTransition       workspaceInsertTransition;
     PHLWORKSPACEREF                  pendingRemovedWorkspace;
     ScrollOverview::Config::ELayout  layout = ScrollOverview::Config::ELayout::VERTICAL;
